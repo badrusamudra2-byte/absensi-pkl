@@ -1,7 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useSidebar } from '../../context/SidebarContext';
 import { cn } from '../../utils/helpers';
-import { ChevronLeft, ChevronRight, X, BarChart2, ClipboardList, Calendar, BookOpen, FileText, Users, Shield, Settings, LogOut, QrCode } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  X, 
+  BarChart2, 
+  ClipboardList, 
+  Calendar, 
+  BookOpen, 
+  FileText, 
+  Users, 
+  Shield, 
+  Settings, 
+  LogOut, 
+  QrCode 
+} from 'lucide-react';
 
 const iconMap = {
   BarChart2,
@@ -17,122 +32,111 @@ const iconMap = {
 };
 
 const Sidebar = ({ navigation = [], basePath = '', title = 'Menu', userRole = 'peserta' }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { mobileOpen, setMobileOpen, isOpen, toggleIsOpen, isMobile } = useSidebar();
   const location = useLocation();
 
   const Icon = (name) => iconMap[name] || BarChart2;
 
-  // Update isMobile on resize
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Close mobile sidebar on route change
   useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  }, [location.pathname, isMobile, setMobileOpen]);
 
   return (
     <>
-      {/* Mobile overlay */}
-      {mobileOpen && (
+      {/* Mobile backdrop overlay */}
+      {isMobile && mobileOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300" 
           onClick={() => setMobileOpen(false)} 
           aria-hidden="true" 
         />
       )}
 
-      {/* Mobile toggle button (only shown when sidebar is collapsed on desktop) */}
+      {/* Desktop toggle button */}
       {!isMobile && (
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={toggleIsOpen}
           className={cn(
-            'fixed top-16 left-64 z-40 p-2 rounded-full bg-white shadow-lg border border-gray-200',
-            'lg:block hidden',
-            collapsed && 'left-20'
+            'fixed top-20 z-40 p-1.5 rounded-full bg-white shadow-md border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+            'transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500',
+            isOpen ? 'left-[244px]' : 'left-3'
           )}
-          aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-          aria-expanded={!collapsed}
+          aria-label={isOpen ? 'Tutup sidebar' : 'Buka sidebar'}
+          aria-expanded={isOpen}
         >
-          {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+          {isOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
       )}
 
       <aside
         className={cn(
-          'lg:static fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
-          'flex flex-col',
-          isMobile 
-            ? (mobileOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full') 
-            : (collapsed ? 'w-20' : 'w-64'),
-          'lg:w-64'
+          'fixed lg:static inset-y-0 left-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col',
+          isMobile
+            ? (mobileOpen ? 'w-64 translate-x-0 shadow-2xl' : 'w-64 -translate-x-full')
+            : (isOpen ? 'w-64' : 'w-0 overflow-hidden border-r-0')
         )}
         aria-label="Sidebar navigasi"
       >
-        <div className={cn('flex items-center justify-between h-16 px-4 border-b border-gray-200', collapsed && 'justify-center')}>
-          {!collapsed && !isMobile && (
-            <span className="text-xl font-bold text-blue-600 whitespace-nowrap">
+        {/* Header */}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 shrink-0">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <BarChart2 className="w-6 h-6 text-blue-600 shrink-0" />
+            <span className="text-xl font-bold text-blue-600 whitespace-nowrap truncate">
               {title}
             </span>
-          )}
-          {(collapsed || isMobile) && (
-            <div className="flex items-center justify-between w-full">
-              {isMobile && (
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                  aria-label="Tutup menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-              <BarChart2 className="w-6 h-6 text-blue-600 mx-auto" />
-            </div>
+          </div>
+          {isMobile && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              aria-label="Tutup menu navigasi"
+            >
+              <X className="w-5 h-5" />
+            </button>
           )}
         </div>
 
+        {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Navigasi utama">
           {navigation.map((item) => {
             const IconComponent = Icon(item.icon);
             const isActive = location.pathname === item.path || 
               (item.path !== basePath && location.pathname.startsWith(item.path + '/'));
-            
+
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
-                onClick={() => setMobileOpen(false)}
+                onClick={() => {
+                  if (isMobile) setMobileOpen(false);
+                }}
                 className={({ isActive: active }) => cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   'relative overflow-hidden',
                   active 
-                    ? 'bg-blue-50 text-blue-700' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
-                  collapsed && !isMobile && 'justify-center px-2'
+                    ? 'bg-blue-50 text-blue-700 font-semibold' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 )}
                 aria-current={isActive ? 'page' : undefined}
-                title={collapsed && !isMobile ? item.label : undefined}
               >
-                <IconComponent className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                {(!collapsed || isMobile) && <span className="truncate">{item.label}</span>}
-                {isActive && !collapsed && !isMobile && (
-                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600" />
+                <IconComponent className="w-5 h-5 shrink-0" aria-hidden="true" />
+                <span className="truncate whitespace-nowrap">{item.label}</span>
+                {isActive && (
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r" />
                 )}
               </NavLink>
             );
           })}
         </nav>
 
-        <div className={cn('p-4 border-t border-gray-200', collapsed && !isMobile && 'hidden')}>
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-200 shrink-0">
           <div className="px-3 py-2 rounded-lg bg-gray-50 text-xs text-gray-500">
-            <p className="font-medium">Mode Pengembangan</p>
-            <p className="mt-1">Gunakan Role Switcher di navbar untuk mengubah peran.</p>
+            <p className="font-medium text-gray-700">Mode Pengembangan</p>
+            <p className="mt-1">Sistem Absensi & Jurnal PKL</p>
           </div>
         </div>
       </aside>

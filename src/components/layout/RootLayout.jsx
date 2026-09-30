@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { SidebarProvider } from '../../context/SidebarContext';
 import Navbar from './Navbar';
 
 const RootLayout = () => {
@@ -14,12 +15,14 @@ const RootLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-      <main className="flex-1 w-full pt-16 overflow-auto">
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <main className="flex-1 w-full pt-16 overflow-auto flex flex-col">
+          <Outlet />
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
