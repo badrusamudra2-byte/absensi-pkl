@@ -161,7 +161,7 @@ const PesertaManagementPage = () => {
     )},
     { key: 'nim', label: 'NIM/ID', sortable: true },
     { key: 'division', label: 'Divisi', render: (row) => <Badge variant="info">{row.division || '-'}</Badge> },
-    { key: 'pembimbing', label: 'Pembimbing', render: (row) => row.pembimbing?.name || '<span class="text-gray-400">Belum ditugaskan</span>' },
+    { key: 'pembimbing', label: 'Pembimbing', render: (row) => row.pembimbing?.name || <span className="text-gray-400">Belum ditugaskan</span> },
     { key: 'is_active', label: 'Status', sortable: true, render: (row) => (
       <Badge variant={row.is_active ? 'success' : 'danger'}>
         {row.is_active ? 'Aktif' : 'Tidak Aktif'}

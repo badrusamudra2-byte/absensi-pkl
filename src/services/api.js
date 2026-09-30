@@ -138,69 +138,70 @@ const backendCheckPromise = (async () => {
   }
 })();
 
-const withMockFallback = async (apiCall, mockKey) => {
+const withMockFallback = async (apiCall, mockKey, defaultMock = null) => {
   const backendAvailable = await backendCheckPromise;
   
   if (backendAvailable) {
     try {
       return await apiCall();
     } catch {
-      // Fall through to mock
+      // Fall through to mock in demo mode
     }
   }
   
-  return mockResponse(mockData[mockKey]);
+  const fallbackData = mockKey && mockData[mockKey] ? mockData[mockKey] : (defaultMock || { success: true, message: 'Operasi berhasil' });
+  return mockResponse(fallbackData);
 };
 
 export const authService = {
-  login: (credentials) => api.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
-  logout: () => api.post(API_ENDPOINTS.AUTH.LOGOUT),
-  me: () => api.get(API_ENDPOINTS.AUTH.ME),
-  changePassword: (data) => api.put(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data),
+  login: (credentials) => withMockFallback(() => api.post(API_ENDPOINTS.AUTH.LOGIN, credentials), null, { success: true }),
+  logout: () => withMockFallback(() => api.post(API_ENDPOINTS.AUTH.LOGOUT), null, { success: true }),
+  me: () => withMockFallback(() => api.get(API_ENDPOINTS.AUTH.ME), 'pesertaDashboard'),
+  changePassword: (data) => withMockFallback(() => api.put(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data), null, { success: true }),
 };
 
 export const pesertaService = {
   getDashboard: () => withMockFallback(() => api.get(API_ENDPOINTS.PESERTA.DASHBOARD), 'pesertaDashboard'),
-  checkIn: (data) => api.post(API_ENDPOINTS.PESERTA.ATTENDANCE, { ...data, type: 'masuk' }),
-  checkOut: (data) => api.post(API_ENDPOINTS.PESERTA.ATTENDANCE, { ...data, type: 'pulang' }),
+  checkIn: (data) => withMockFallback(() => api.post(API_ENDPOINTS.PESERTA.ATTENDANCE, { ...data, type: 'masuk' }), null, { success: true }),
+  checkOut: (data) => withMockFallback(() => api.post(API_ENDPOINTS.PESERTA.ATTENDANCE, { ...data, type: 'pulang' }), null, { success: true }),
   getAttendanceHistory: (params) => withMockFallback(() => api.get(API_ENDPOINTS.PESERTA.ATTENDANCE_HISTORY, { params }), 'pesertaAttendanceHistory'),
   getJournals: (params) => withMockFallback(() => api.get(API_ENDPOINTS.PESERTA.JOURNAL, { params }), 'pesertaJournals'),
-  getJournalDetail: (id) => api.get(API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id)),
-  createJournal: (data) => api.post(API_ENDPOINTS.PESERTA.JOURNAL, data),
-  updateJournal: (id, data) => api.put(API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id), data),
-  submitJournal: (id) => api.post(`${API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id)}/submit`),
-  enrollFace: (data) => api.post(API_ENDPOINTS.PESERTA.FACE_ENROLL, data),
-  verifyFace: (data) => api.post(API_ENDPOINTS.PESERTA.FACE_VERIFY, data),
+  getJournalDetail: (id) => withMockFallback(() => api.get(API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id)), null, { id, title: 'Belajar React.js', description: 'Mempelajari component lifecycle', result: 'Pemahaman React state & props', obstacle: 'Tidak ada', plan: 'Integrasi API', status: 'Disetujui', journal_date: '2024-01-15', created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' }),
+  createJournal: (data) => withMockFallback(() => api.post(API_ENDPOINTS.PESERTA.JOURNAL, data), null, { success: true }),
+  updateJournal: (id, data) => withMockFallback(() => api.put(API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id), data), null, { success: true }),
+  submitJournal: (id) => withMockFallback(() => api.post(`${API_ENDPOINTS.PESERTA.JOURNAL_DETAIL(id)}/submit`), null, { success: true }),
+  enrollFace: (data) => withMockFallback(() => api.post(API_ENDPOINTS.PESERTA.FACE_ENROLL, data), null, { success: true }),
+  verifyFace: (data) => withMockFallback(() => api.post(API_ENDPOINTS.PESERTA.FACE_VERIFY, data), null, { success: true }),
 };
 
 export const pembimbingService = {
   getDashboard: () => withMockFallback(() => api.get(API_ENDPOINTS.PEMBIMBING.DASHBOARD), 'pembimbingDashboard'),
   getJournalsForReview: (params) => withMockFallback(() => api.get(API_ENDPOINTS.PEMBIMBING.JOURNAL_REVIEW, { params }), 'pembimbingJournals'),
-  getJournalDetail: (id) => api.get(API_ENDPOINTS.PEMBIMBING.JOURNAL_DETAIL(id)),
-  reviewJournal: (id, data) => api.post(`${API_ENDPOINTS.PEMBIMBING.JOURNAL_DETAIL(id)}/review`, data),
+  getJournalDetail: (id) => withMockFallback(() => api.get(API_ENDPOINTS.PEMBIMBING.JOURNAL_DETAIL(id)), null, { id, title: 'Belajar React.js', description: 'Mempelajari component lifecycle', result: 'Pemahaman React state & props', obstacle: 'Tidak ada', plan: 'Integrasi API', status: 'Dikirim', user: { name: 'Peserta Demo', email: 'peserta@demo.com' }, journal_date: '2024-01-15', created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' }),
+  reviewJournal: (id, data) => withMockFallback(() => api.post(`${API_ENDPOINTS.PEMBIMBING.JOURNAL_DETAIL(id)}/review`, data), null, { success: true }),
   getAttendanceRecap: (params) => withMockFallback(() => api.get(API_ENDPOINTS.PEMBIMBING.ATTENDANCE_RECAP, { params }), 'pembimbingJournals'),
-  getMentees: () => api.get(API_ENDPOINTS.PEMBIMBING.MENTEES),
+  getMentees: () => withMockFallback(() => api.get(API_ENDPOINTS.PEMBIMBING.MENTEES), null, mockData.adminPeserta.data),
 };
 
 export const adminService = {
   getDashboard: () => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.DASHBOARD), 'adminDashboard'),
   getPeserta: (params) => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.PESERTA, { params }), 'adminPeserta'),
-  createPeserta: (data) => api.post(API_ENDPOINTS.ADMIN.PESERTA, data),
-  updatePeserta: (id, data) => api.put(`${API_ENDPOINTS.ADMIN.PESERTA}/${id}`, data),
-  deletePeserta: (id) => api.delete(`${API_ENDPOINTS.ADMIN.PESERTA}/${id}`),
+  createPeserta: (data) => withMockFallback(() => api.post(API_ENDPOINTS.ADMIN.PESERTA, data), null, { success: true }),
+  updatePeserta: (id, data) => withMockFallback(() => api.put(`${API_ENDPOINTS.ADMIN.PESERTA}/${id}`, data), null, { success: true }),
+  deletePeserta: (id) => withMockFallback(() => api.delete(`${API_ENDPOINTS.ADMIN.PESERTA}/${id}`), null, { success: true }),
   getPembimbing: (params) => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.PEMBIMBING, { params }), 'adminPembimbing'),
-  createPembimbing: (data) => api.post(API_ENDPOINTS.ADMIN.PEMBIMBING, data),
-  updatePembimbing: (id, data) => api.put(`${API_ENDPOINTS.ADMIN.PEMBIMBING}/${id}`, data),
+  createPembimbing: (data) => withMockFallback(() => api.post(API_ENDPOINTS.ADMIN.PEMBIMBING, data), null, { success: true }),
+  updatePembimbing: (id, data) => withMockFallback(() => api.put(`${API_ENDPOINTS.ADMIN.PEMBIMBING}/${id}`, data), null, { success: true }),
   deletePembimbing: (id) => api.delete(`${API_ENDPOINTS.ADMIN.PEMBIMBING}/${id}`),
-  getSchedule: () => api.get(API_ENDPOINTS.ADMIN.SCHEDULE),
-  updateSchedule: (data) => api.put(API_ENDPOINTS.ADMIN.SCHEDULE, data),
-  getAuditLog: (params) => api.get(API_ENDPOINTS.ADMIN.AUDIT_LOG, { params }),
-  exportReport: (params) => api.get(API_ENDPOINTS.ADMIN.REPORT, { params, responseType: 'blob' }),
+  getSchedule: () => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.SCHEDULE), null, { work_start_time: '08:00', work_end_time: '17:00', late_tolerance_minutes: 15, work_days: [1, 2, 3, 4, 5], timezone: 'Asia/Jakarta', break_start_time: '12:00', break_end_time: '13:00' }),
+  updateSchedule: (data) => withMockFallback(() => api.put(API_ENDPOINTS.ADMIN.SCHEDULE, data), null, { success: true }),
+  getAuditLog: (params) => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.AUDIT_LOG, { params }), null, { data: [], meta: { total: 0 } }),
+  exportReport: (params) => withMockFallback(() => api.get(API_ENDPOINTS.ADMIN.REPORT, { params, responseType: 'blob' }), null, new Blob(['demo report content'])),
 };
 
 export const profileService = {
-  getProfile: () => api.get(API_ENDPOINTS.PROFILE.BASE),
-  updateProfile: (data) => api.put(API_ENDPOINTS.PROFILE.UPDATE, data),
+  getProfile: () => withMockFallback(() => api.get(API_ENDPOINTS.PROFILE.BASE), null, { name: 'Demo User', email: 'user@demo.com', phone: '08123456789', address: 'Jakarta' }),
+  updateProfile: (data) => withMockFallback(() => api.put(API_ENDPOINTS.PROFILE.UPDATE, data), null, { success: true }),
 };
 
 export default api;

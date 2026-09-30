@@ -149,7 +149,7 @@ const JournalDetailPage = () => {
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 Hasil yang Dicapai
               </h3>
-              <p className="whitespace-pre-wrap text-gray-700">{journal.result || '<em class="text-gray-400">Belum diisi</em>'}</p>
+              <p className="whitespace-pre-wrap text-gray-700">{journal.result || <em className="text-gray-400">Belum diisi</em>}</p>
             </Card>
 
             <Card>
@@ -157,7 +157,7 @@ const JournalDetailPage = () => {
                 <AlertCircle className="w-5 h-5 text-yellow-500" />
                 Kendala/Hambatan
               </h3>
-              <p className="whitespace-pre-wrap text-gray-700">{journal.obstacle || '<em class="text-gray-400">Belum diisi</em>'}</p>
+              <p className="whitespace-pre-wrap text-gray-700">{journal.obstacle || <em className="text-gray-400">Belum diisi</em>}</p>
             </Card>
           </div>
 
@@ -166,7 +166,7 @@ const JournalDetailPage = () => {
               <Clock className="w-5 h-5 text-blue-500" />
               Rencana Berikutnya
             </h3>
-            <p className="whitespace-pre-wrap text-gray-700">{journal.plan || '<em class="text-gray-400">Belum diisi</em>'}</p>
+            <p className="whitespace-pre-wrap text-gray-700">{journal.plan || <em className="text-gray-400">Belum diisi</em>}</p>
           </Card>
         </div>
 

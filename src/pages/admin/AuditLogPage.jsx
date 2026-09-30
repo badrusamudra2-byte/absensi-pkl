@@ -9,7 +9,7 @@ import Table from '../../components/ui/Table';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import Modal from '../../components/ui/Modal';
-import { Search, Filter, Calendar, Download, Eye, Filter as FilterIcon } from 'lucide-react';
+import { Search, Calendar, Download, Eye, Filter as FilterIcon } from 'lucide-react';
 
 const AuditLogPage = () => {
   const [logs, setLogs] = useState([]);

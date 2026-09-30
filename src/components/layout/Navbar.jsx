@@ -68,7 +68,7 @@ const Navbar = () => {
                 onClose={() => setProfileMenuOpen(false)}
                 items={[
                   { label: 'Profil', icon: User, onClick: () => { setProfileMenuOpen(false); window.location.href = '/profile'; } },
-                  { label: 'Pengaturan', icon: Settings, onClick: () => { setProfileMenuOpen(false); window.location.href = '/settings'; } },
+                  { label: 'Pengaturan', icon: Settings, onClick: () => { setProfileMenuOpen(false); window.location.href = role === 'admin' ? '/admin/schedule' : '/profile'; } },
                   { label: 'Keluar', icon: LogOut, onClick: handleLogout, danger: true },
                 ]}
               />

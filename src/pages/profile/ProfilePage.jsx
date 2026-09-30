@@ -12,7 +12,7 @@ import { User, Lock, Save, CheckCircle, Camera, Edit } from 'lucide-react';
 const ProfilePage = () => {
   const { user, updateUser, changePassword } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-  const [loading, setLoading] = true;
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);

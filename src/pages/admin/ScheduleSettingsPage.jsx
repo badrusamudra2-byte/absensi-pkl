@@ -103,7 +103,7 @@ const ScheduleSettingsPage = () => {
       {success && <Alert type="success" message={success} dismissible onClose={() => setSuccess(null)} />}
 
       <Card header={<h3 className="text-lg font-semibold text-gray-900">Jam Kerja</h3>}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id="schedule-form" onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Input
               label="Jam Masuk *"
@@ -155,6 +155,7 @@ const ScheduleSettingsPage = () => {
             />
             <Select
               label="Zona Waktu"
+              name="timezone"
               options={[
                 { value: 'Asia/Jakarta', label: 'WIB (UTC+7)' },
                 { value: 'Asia/Makassar', label: 'WITA (UTC+8)' },
